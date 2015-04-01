@@ -35,10 +35,41 @@ class Video:
 			cv2.imwrite("%s/frame_%d.%s" % (output_dir, i+1, output_extension), frame)
 		return True
 
+	class VideoIterator:
+		def __init__(self, v):
+			Debug.Print("__init__")
+			self.i = 0
+			self.v = v
+		def __len__(self):
+			Debug.Print("__len__")
+			return len(self.v)
+		def next(self):
+			Debug.Print("next")
+			if self.i >= len(self.v):
+				raise StopIteration
+			f = self.v[self.i]
+			self.i = self.i + 1
+			return f
+
+	# These three methods will make Video act like an array.
+	def __getitem__(self, index):
+		Debug.Print("__getitem__")
+		return self.video_frames[index]
+	def __len__(self):
+		Debug.Print("__len__")
+		return len(self.video_frames)
+	def __iter__(self):
+		Debug.Print("__iter__")
+		return Video.VideoIterator(self)
+
 def TestVideo():
 	v = Video("centaur_1.mpg")
 	if not v.dump_frames():
 		print("Error occurred dumping frames.")
+	print("len(v): %d" % len(v))
+	#for i in range(len(v)):
+	for f,i in zip(v, range(len(v))):
+		print("i,f: %d, %s" % (i, str(f)))
 
 if __name__== "__main__":
 	TestVideo()
