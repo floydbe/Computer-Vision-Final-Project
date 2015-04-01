@@ -16,7 +16,7 @@ def d(im1, im2, p=2):
 		for a in range(x1):
 			for b in range(y1):
 				distance += abs(im1[b][a]-im2[b][a])**p
-		return distance**(1.0/p)
+		return (distance/(x1*y1))**(1.0/p)
 
 i1 = np.array(Image.open("checker.jpg").convert('L'),dtype="float")
 i2 = np.array(Image.open("checker_grad.jpg").convert('L'),dtype="float")
