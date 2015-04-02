@@ -44,9 +44,11 @@ class Video:
 		return True
 
 	class VideoIterator:
-		def __init__(self, v):
+		def __init__(self, v, start_frame=0):
 			Debug.Print("__init__")
-			self.i = 0
+			assert start_frame < len(v) and start_frame >= 0,\
+				"start_frame must be less than total frames."
+			self.i = start_frame
 			self.v = v
 		def __len__(self):
 			Debug.Print("__len__")
@@ -58,6 +60,13 @@ class Video:
 			f = self.v[self.i]
 			self.i = self.i + 1
 			return f
+		#
+		# We need to return ourselves as an iterator
+		# so that a user can call sub_iter on Video
+		# and get back something useful.
+		#
+		def __iter__(self):
+			return self
 
 	# These three methods will make Video act like an array.
 	def __getitem__(self, index):
@@ -69,6 +78,10 @@ class Video:
 	def __iter__(self):
 		Debug.Print("__iter__")
 		return Video.VideoIterator(self)
+	# start_frame should be 0-indexed
+	def sub_iter(self, start_frame):
+		Debug.Print("sub_iter")
+		return Video.VideoIterator(self, start_frame)
 
 def TestVideo():
 	v = Video("centaur_1.mpg")
@@ -76,8 +89,11 @@ def TestVideo():
 	if not v.dump_frames():
 		print("Error occurred dumping frames.")
 	print("len(v): %d" % len(v))
-	#for i in range(len(v)):
+
 	for f,i in zip(v, range(len(v))):
+		print("i,f: %d, %s" % (i, str(f)))
+
+	for f,i in zip(v.sub_iter(400), range(len(v))):
 		print("i,f: %d, %s" % (i, str(f)))
 
 if __name__== "__main__":
