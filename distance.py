@@ -7,12 +7,8 @@ def d(im1, im2, p=2):
 	y1,x1 = im1.shape
 	y2,x2 = im2.shape
 	if (y1,x1) != (y2,x2):
-		#print "Images must be the same size."
-		#print "Image 1:", x1, "x", y1
-		#print "Image 2:", x2, "x", y2
 		return -1
 	else:
-		#print "Image size:", x1, "x", y1
 		distance = 0
 		for a in range(x1):
 			for b in range(y1):
