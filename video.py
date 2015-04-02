@@ -60,40 +60,42 @@ class Video:
 			f = self.v[self.i]
 			self.i = self.i + 1
 			return (f,self.i-1)
-		#
-		# We need to return ourselves as an iterator
-		# so that a user can call sub_iter on Video
-		# and get back something useful.
-		#
-		def __iter__(self):
-			return self
 
 	# These three methods will make Video act like an array.
 	def __getitem__(self, index):
-		Debug.Print("__getitem__")
-		return self.video_frames[index]
+		if (type(index) == slice):
+			# This is a slice operation.
+			Debug.Print("__getitem__:slice")
+			slice_video = Video(self.video_filename, self.grayscale)
+			slice_video.video_frames = self.video_frames[index.start:index.stop]
+			return slice_video
+		else:
+			Debug.Print("__getitem__")
+			# This is a simple frame index operation.
+			return self.video_frames[index]
 	def __len__(self):
 		Debug.Print("__len__")
 		return len(self.video_frames)
 	def __iter__(self):
 		Debug.Print("__iter__")
 		return Video.VideoIterator(self)
-	# start_frame should be 0-indexed
-	def sub_iter(self, start_frame):
-		Debug.Print("sub_iter")
-		return Video.VideoIterator(self, start_frame)
 
 def TestVideo():
-	v = Video("centaur_1.mpg")
+	#v = Video("centaur_1.mpg")
 	#v = Video("centaur_1.mpg", grayscale=True)
-	if not v.dump_frames():
-		print("Error occurred dumping frames.")
+	v = Video("small.ogv", grayscale=True)
+	sv = v[0:10]
+
 	print("len(v): %d" % len(v))
+	print("len(sv): %d" % len(sv))
+
+	if not sv.dump_frames():
+		print("Error occurred dumping frames.")
 
 	for f,i in v:
 		print("i,f: %d, %s" % (i, str(f)))
 
-	for f,i in v.sub_iter(400):
+	for f,i in sv[5:]:
 		print("i,f: %d, %s" % (i, str(f)))
 
 if __name__== "__main__":
