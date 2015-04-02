@@ -5,10 +5,14 @@ from debug import Debug
 import cv2
 import os
 import os.path
+import skimage
+import skimage.color
+import skimage.io
 
 class Video:
-	def __init__(self, video_filename):
+	def __init__(self, video_filename, grayscale=False):
 		self.video_filename = video_filename
+		self.grayscale = grayscale
 		self.load()
 
 	def load(self):
@@ -16,7 +20,10 @@ class Video:
 		video_capturer = cv2.VideoCapture(self.video_filename)
 		grab_status, grab_frame = video_capturer.read()
 		while grab_status:
-			self.video_frames.append(grab_frame)	
+			if self.grayscale:
+				self.video_frames.append(skimage.color.rgb2gray(grab_frame))
+			else:
+				self.video_frames.append(grab_frame)
 			grab_status, grab_frame = video_capturer.read()
 		video_capturer.release()
 
@@ -32,7 +39,8 @@ class Video:
 
 		# Loop through frames and output them.
 		for frame,i in zip(self.video_frames, range(len(self.video_frames))):
-			cv2.imwrite("%s/frame_%d.%s" % (output_dir, i+1, output_extension), frame)
+			#cv2.imwrite("%s/frame_%d.%s" % (output_dir, i+1, output_extension), frame)
+			skimage.io.imsave("%s/frame_%d.%s" % (output_dir, i+1, output_extension), frame)
 		return True
 
 	class VideoIterator:
@@ -64,6 +72,7 @@ class Video:
 
 def TestVideo():
 	v = Video("centaur_1.mpg")
+	#v = Video("centaur_1.mpg", grayscale=True)
 	if not v.dump_frames():
 		print("Error occurred dumping frames.")
 	print("len(v): %d" % len(v))
