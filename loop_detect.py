@@ -7,9 +7,9 @@ from video import Video
 from distance import d
 
 def Match():
-	v = Video("centaur_1.mpg")
+	v = Video("centaur_1.mpg", grayscale=True)
 
-	for f,i in zip(v, range(len(v)-1)):
+	for f,i in zip(v, range(len(v))):
 		print("i: %d" % i)
 		for g,j in zip(v.sub_iter(i), range(len(v))):
 			print("d(%d,%d) = %f" % (i, i+j, d(f,g)))
