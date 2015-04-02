@@ -18,7 +18,10 @@ class Video:
 	def load(self):
 		self.video_frames = []
 		video_capturer = cv2.VideoCapture(self.video_filename)
+		if video_capturer == None:
+			print("Error!")
 		grab_status, grab_frame = video_capturer.read()
+		Debug.Print("grab_status: %s" % str(grab_status))
 		while grab_status:
 			if self.grayscale:
 				self.video_frames.append(skimage.color.rgb2gray(grab_frame))
@@ -84,7 +87,7 @@ class Video:
 		return Video.VideoIterator(self, start_frame)
 
 def TestVideo():
-	v = Video("centaur_1.mpg")
+	v = Video("small.ogv")
 	#v = Video("centaur_1.mpg", grayscale=True)
 	if not v.dump_frames():
 		print("Error occurred dumping frames.")
