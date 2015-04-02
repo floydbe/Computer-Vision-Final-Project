@@ -9,9 +9,9 @@ from distance import d
 def Match():
 	v = Video("centaur_1.mpg", grayscale=True)
 
-	for f,i in zip(v, range(len(v))):
+	for f,i in v:
 		print("i: %d" % i)
-		for g,j in zip(v.sub_iter(i), range(len(v))):
+		for g,j in v.sub_iter(i):
 			print("d(%d,%d) = %f" % (i, i+j, d(f,g)))
 
 if __name__== "__main__":

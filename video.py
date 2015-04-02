@@ -59,7 +59,7 @@ class Video:
 				raise StopIteration
 			f = self.v[self.i]
 			self.i = self.i + 1
-			return f
+			return (f,self.i-1)
 		#
 		# We need to return ourselves as an iterator
 		# so that a user can call sub_iter on Video
@@ -90,10 +90,10 @@ def TestVideo():
 		print("Error occurred dumping frames.")
 	print("len(v): %d" % len(v))
 
-	for f,i in zip(v, range(len(v))):
+	for f,i in v:
 		print("i,f: %d, %s" % (i, str(f)))
 
-	for f,i in zip(v.sub_iter(400), range(len(v))):
+	for f,i in v.sub_iter(400):
 		print("i,f: %d, %s" % (i, str(f)))
 
 if __name__== "__main__":
