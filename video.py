@@ -8,8 +8,9 @@ import os.path
 import skimage
 import skimage.color
 import skimage.io
+import skimage.filter
 
-class Video:
+class Video(object):
 	def __init__(self, video_filename, grayscale=False):
 		self.video_filename = video_filename
 		self.grayscale = grayscale
@@ -90,9 +91,33 @@ class Video:
 		Debug.Print("__iter__")
 		return Video.VideoIterator(self)
 
+class EdgeVideo(Video):
+	def __init__(self, parameter, grayscale=False):
+		if type(parameter) == Video or type(parameter) == EdgeVideo:
+			Debug.Print("Converting from Existing Video (parameter is video).")
+			self.video_frames = parameter.video_frames
+			self.grayscale = parameter.grayscale
+			self.video_filename = parameter.video_filename
+		else:
+			Debug.Print("New Video entirely (parameter is filename).")
+			super(self.__class__, self).__init__(parameter, grayscale)
+		#
+		# Now, let's edgify each frame.
+		#
+		if not type(parameter) == EdgeVideo:
+			Debug.Print("Canny-fying.")
+			new_video_frames = []
+			for f in self.video_frames:
+				new_video_frames.append(skimage.img_as_float(skimage.filter.canny(f)))
+			self.video_frames = new_video_frames
+			Debug.Print("len(new_video_frames): %d" % len(new_video_frames))
+		pass
+
 def TestVideo():
 	#v = Video("centaur_1.mpg")
 	v = Video("small.ogv")
+	ev = EdgeVideo("small.ogv", grayscale=True)
+	ev = EdgeVideo(ev)
 	#v = Video("centaur_1.mpg", grayscale=True)
 	v = Video("small.ogv", grayscale=True)
 	sv = v[0:10]
@@ -100,9 +125,9 @@ def TestVideo():
 	print("len(v): %d" % len(v))
 	print("len(sv): %d" % len(sv))
 
-	if not sv.dump_frames():
+	if not ev.dump_frames():
 		print("Error occurred dumping frames.")
-
+	"""
 	print("for f,i in v:")
 	for f,i in v:
 		print("i,f: %d, %s" % (i, str(f)))
@@ -114,5 +139,6 @@ def TestVideo():
 	print("for f,i in v.sub_iter(5):")
 	for f,i in sv.sub_iter(5):
 		print("i,f: %d, %s" % (i, str(f)))
+	"""
 if __name__== "__main__":
 	TestVideo()
