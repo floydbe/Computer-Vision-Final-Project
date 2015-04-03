@@ -27,6 +27,7 @@ class Video(object):
 		grab_status, grab_frame = video_capturer.read()
 		Debug.Print("grab_status: %s" % str(grab_status))
 		while grab_status:
+			grab_frame = cv2.cvtColor(grab_frame, cv2.COLOR_BGR2RGB)
 			if self.grayscale:
 				self.video_frames.append(skimage.color.rgb2gray(grab_frame))
 			else:
