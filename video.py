@@ -9,6 +9,9 @@ import skimage
 import skimage.color
 import skimage.io
 import skimage.filter
+import shutil
+import make_gif
+import tempfile
 
 class Video(object):
 	def __init__(self, video_filename, grayscale=False):
@@ -46,6 +49,13 @@ class Video(object):
 			#cv2.imwrite("%s/frame_%d.%s" % (output_dir, i+1, output_extension), frame)
 			skimage.io.imsave("%s/frame_%d.%s" % (output_dir, i+1, output_extension), frame)
 		return True
+
+	def to_animated_gif(self, gif_name):
+		temp_folder_name = tempfile.mkdtemp()
+		self.dump_frames(temp_folder_name, "jpg")
+		make_gif.make_gif(temp_folder_name, frames_per_sec=30, output_file_loc=gif_name)
+		# Not wild about using this helper.
+		shutil.rmtree(temp_folder_name, ignore_errors=True)
 
 	class VideoIterator:
 		def __init__(self, v, start_frame=0):
@@ -115,30 +125,30 @@ class EdgeVideo(Video):
 
 def TestVideo():
 	#v = Video("centaur_1.mpg")
+	print("v = Video(\"small.ogv\")")
 	v = Video("small.ogv")
+	print("ev = EdgeVideo(\"small.ogv\", grayscale=True)")
 	ev = EdgeVideo("small.ogv", grayscale=True)
+	print("ev = EdgeVideo(ev)")
 	ev = EdgeVideo(ev)
 	#v = Video("centaur_1.mpg", grayscale=True)
+	print("v = Video(\"small.ogv\", grayscale=True)")
 	v = Video("small.ogv", grayscale=True)
+	print("sv = v[0:10]")
 	sv = v[0:10]
 
 	print("len(v): %d" % len(v))
 	print("len(sv): %d" % len(sv))
 
+	print("ev.dump_frames()")
 	if not ev.dump_frames():
 		print("Error occurred dumping frames.")
-	"""
-	print("for f,i in v:")
-	for f,i in v:
-		print("i,f: %d, %s" % (i, str(f)))
 
-	print("for f,i in sv[5:]:")
-	for f,i in sv[5:]:
-		print("i,f: %d, %s" % (i, str(f)))
+	print("sv.to_animated_gif(\"output_gif.gif\")")
+	v.to_animated_gif("output_gif.gif")
 
 	print("for f,i in v.sub_iter(5):")
 	for f,i in sv.sub_iter(5):
-		print("i,f: %d, %s" % (i, str(f)))
-	"""
+		print("i: %d" % (i))
 if __name__== "__main__":
 	TestVideo()
