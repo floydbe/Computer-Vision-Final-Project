@@ -132,21 +132,18 @@ def TestVideo():
 	ev = EdgeVideo("small.ogv", grayscale=True)
 	print("ev = EdgeVideo(ev)")
 	ev = EdgeVideo(ev)
-	#v = Video("centaur_1.mpg", grayscale=True)
-	print("v = Video(\"small.ogv\", grayscale=True)")
-	v = Video("small.ogv", grayscale=True)
 	print("sv = v[0:10]")
 	sv = v[0:10]
 
 	print("len(v): %d" % len(v))
 	print("len(sv): %d" % len(sv))
 
-	print("ev.dump_frames()")
-	if not ev.dump_frames():
+	print("v.dump_frames()")
+	if not v.dump_frames():
 		print("Error occurred dumping frames.")
 
 	print("sv.to_animated_gif(\"output_gif.gif\")")
-	v.to_animated_gif("output_gif.gif")
+	ev.to_animated_gif("output_gif.gif")
 
 	print("for f,i in v.sub_iter(5):")
 	for f,i in sv.sub_iter(5):
