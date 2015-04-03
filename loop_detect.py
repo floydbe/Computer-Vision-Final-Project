@@ -11,8 +11,8 @@ def Match():
 
 	for f,i in v:
 		print("i: %d" % i)
-		for g,j in v[i:]:
-			print("d(%d,%d) = %f" % (i, i+j, 0.0))#d(f,g)))
+		for g,j in v.sub_iter(i):
+			print("d(%d,%d) = %f" % (i, j, d(f,g)))
 
 if __name__== "__main__":
 	Match()

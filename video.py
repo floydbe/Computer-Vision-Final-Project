@@ -63,6 +63,13 @@ class Video:
 			f = self.v[self.i]
 			self.i = self.i + 1
 			return (f,self.i-1)
+		def __iter__(self):
+			return self
+
+	# start_frame should be 0-indexed
+	def sub_iter(self, start_frame):
+		Debug.Print("sub_iter")
+		return Video.VideoIterator(self, start_frame)
 
 	# These three methods will make Video act like an array.
 	def __getitem__(self, index):
@@ -96,11 +103,16 @@ def TestVideo():
 	if not sv.dump_frames():
 		print("Error occurred dumping frames.")
 
+	print("for f,i in v:")
 	for f,i in v:
 		print("i,f: %d, %s" % (i, str(f)))
 
+	print("for f,i in sv[5:]:")
 	for f,i in sv[5:]:
 		print("i,f: %d, %s" % (i, str(f)))
 
+	print("for f,i in v.sub_iter(5):")
+	for f,i in sv.sub_iter(5):
+		print("i,f: %d, %s" % (i, str(f)))
 if __name__== "__main__":
 	TestVideo()
