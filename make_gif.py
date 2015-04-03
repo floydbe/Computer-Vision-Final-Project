@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from scitools.std import movie
 
 def make_gif(frame_loc, frames_per_sec=1, output_file_loc="my_gif.gif"):
