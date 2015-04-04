@@ -47,8 +47,7 @@ class Video(object):
 
 		# Loop through frames and output them.
 		for frame,i in zip(self.video_frames, range(len(self.video_frames))):
-			#cv2.imwrite("%s/frame_%d.%s" % (output_dir, i+1, output_extension), frame)
-			skimage.io.imsave("%s/frame_%d.%s" % (output_dir, i+1, output_extension), frame)
+			skimage.io.imsave("%s/frame_%04d.%s" % (output_dir, i+1, output_extension), frame)
 		return True
 
 	def to_animated_gif(self, gif_name):
