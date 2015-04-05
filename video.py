@@ -33,6 +33,16 @@ class Video(object):
 			else:
 				self.video_frames.append(grab_frame)
 			grab_status, grab_frame = video_capturer.read()
+
+		# Determine the FPS
+		# This must be done at the end of the loop so that we are getting
+		# accurate information about the actual number of total frames
+		# in the video but especially about the total playback time.
+		#
+		frame_count = video_capturer.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT)
+		video_length = video_capturer.get(cv2.cv.CV_CAP_PROP_POS_MSEC)/1000.0
+		self.frames_per_second = int(frame_count/video_length)
+
 		video_capturer.release()
 
 	def dump_frames(self, output_dir="./frames", output_extension="jpg"):
@@ -53,7 +63,7 @@ class Video(object):
 	def to_animated_gif(self, gif_name):
 		temp_folder_name = tempfile.mkdtemp()
 		self.dump_frames(temp_folder_name, "jpg")
-		make_gif.make_gif(temp_folder_name, frames_per_sec=30, output_file_loc=gif_name)
+		make_gif.make_gif(temp_folder_name, frames_per_sec=self.frames_per_second, output_file_loc=gif_name)
 		# Not wild about using this helper.
 		shutil.rmtree(temp_folder_name, ignore_errors=True)
 
@@ -108,6 +118,7 @@ class EdgeVideo(Video):
 			self.video_frames = parameter.video_frames
 			self.grayscale = parameter.grayscale
 			self.video_filename = parameter.video_filename
+			self.frames_per_second = parameter.frames_per_second
 		else:
 			Debug.Print("New Video entirely (parameter is filename).")
 			super(self.__class__, self).__init__(parameter, grayscale)
