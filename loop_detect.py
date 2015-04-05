@@ -59,4 +59,6 @@ if __name__== "__main__":
 		end_frame = len(video)
 	matches = Match(video, start_frame, end_frame)
 	matches = sorted(matches, key=itemgetter(2))
-	print(matches)
+	# print matches in csv style.
+	for match in matches:
+		print("%d,%d,%f" % (match[0], match[1], match[2]))
