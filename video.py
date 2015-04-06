@@ -160,8 +160,8 @@ class ScaleVideo(Video):
 			Debug.Print("Scaling.")
 			new_video_frames = []
 			for f in self.video_frames:
-				# rescale and new_video_frames.append() that here.
-				pass
+				new_f = skimage.transform.resize(f,(128,128))
+				new_video_frames.append(new_f)
 			self.video_frames = new_video_frames
 			Debug.Print("len(new_video_frames): %d" % len(new_video_frames))
 		pass
