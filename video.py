@@ -25,6 +25,16 @@ class Video(object):
 			self.grayscale = grayscale
 			self.load()
 
+	def __repr__(self):
+		return """video_filename: %s
+			grayscale: %s
+			# of video_frames: %d
+			frames_per_second: %d""" %\
+			(self.video_filename,
+			str(self.grayscale),
+			len(self.video_frames),
+			self.frames_per_second)
+
 	def load(self):
 		self.video_frames = []
 		video_capturer = cv2.VideoCapture(self.video_filename)
@@ -160,16 +170,22 @@ def TestVideo():
 	#v = Video("centaur_1.mpg")
 	print("v = Video(\"small.ogv\")")
 	v = Video("small.ogv")
+	print("v: %s" % str(v))
 	print("ev = EdgeVideo(\"small.ogv\", grayscale=True)")
 	ev = EdgeVideo("small.ogv", grayscale=True)
+	print("ev: %s" % str(ev))
 	print("ev = EdgeVideo(ev)")
 	ev = EdgeVideo(ev)
+	print("ev: %s" % str(ev))
 	print("sv = v[0:10]")
 	sv = v[0:10]
+	print("sv: %s" % str(sv))
 	print("scalev = ScaleVideo(v)")
 	scalev = ScaleVideo(v)
+	print("scalev: %s" % str(scalev))
 	print("scalev = ScaleVideo(\"small.ogv\")")
 	scalev = ScaleVideo("small.ogv")
+	print("scalev: %s" % str(scalev))
 
 	print("len(v): %d" % len(v))
 	print("len(sv): %d" % len(sv))
