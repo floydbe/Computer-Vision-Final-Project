@@ -19,14 +19,19 @@ def Match(v, start_frame, end_frame):
 		if i > end_frame:
 			break
 		for g,j in v.sub_iter(i):
-			Debug.Print("d(%d,%d) = %f" % (i, j, 0.0))
-			matches.append((i,j,d(f,g)))
+			distance = 0.0
+			if i != j:
+				distance = d(f,g)
+			matches.append((i,j,distance))
+			Debug.Print("d(%d,%d) = %f" % (i, j, distance))
 	return matches
 
 def usage(myname):
 	print("""%s 
 	[-s, --start <start frame>]
 	[-e, --end <end frame> ] 
+	[-o, --optimize ]
+	[-t, --threshold <threshold> (only applicable in combination with -o)]
 	<video filename>""" % myname)
 
 if __name__== "__main__":
@@ -34,9 +39,11 @@ if __name__== "__main__":
 	end_frame = None
 	video = None
 	filename = None
+	threshold = 0.20
+	do_edge_match_optimization = False
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "s:e:", ["start=", "end="])
+		opts, args = getopt.getopt(sys.argv[1:], "s:e:ot:", ["start=", "end=", "optimize", "threshold="])
 
 		if len(args) != 1:
 			raise getopt.GetoptError("Must specify a single filename as parameter.")
@@ -48,7 +55,10 @@ if __name__== "__main__":
 				start_frame = int(a)
 			elif o == "e" or o == "end":
 				end_frame = int(a)
-
+			elif o == "o" or o == "optimize":
+				do_edge_match_optimization = True
+			elif o == "t" or o == "threshold":
+				threshold = float(a)
 			print("%s=%s" % (o,a))
 	except getopt.GetoptError as error:
 		usage(sys.argv[0])
@@ -57,7 +67,19 @@ if __name__== "__main__":
 	video = Video(filename, grayscale=True)
 	if end_frame == None:
 		end_frame = len(video)
-	matches = Match(video, start_frame, end_frame)
+
+	matches = []
+	if do_edge_match_optimization:
+		edge_video = EdgeVideo(video)
+		edge_matches = Match(edge_video, start_frame, end_frame)
+		edge_matches = sorted(edge_matches, key=itemgetter(2))
+		# compute full matches for good edge matches
+		for a,b,distance in edge_matches:
+			if distance < threshold:
+				matches.append((a,b,d(video[a],video[b])))
+	else:
+		matches = Match(video, start_frame, end_frame)
+
 	matches = sorted(matches, key=itemgetter(2))
 	# print matches in csv style.
 	for match in matches:
