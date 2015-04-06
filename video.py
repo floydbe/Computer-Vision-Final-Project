@@ -14,10 +14,16 @@ import make_gif
 import tempfile
 
 class Video(object):
-	def __init__(self, video_filename, grayscale=False):
-		self.video_filename = video_filename
-		self.grayscale = grayscale
-		self.load()
+	def __init__(self, video, grayscale=False):
+		if isinstance(video,Video):
+			self.video_filename = video.video_filename
+			self.grayscale = video.grayscale
+			self.video_frames = video.video_frames
+			self.frames_per_second = video.frames_per_second
+		else:
+			self.video_filename = video
+			self.grayscale = grayscale
+			self.load()
 
 	def load(self):
 		self.video_frames = []
@@ -113,15 +119,11 @@ class Video(object):
 
 class EdgeVideo(Video):
 	def __init__(self, parameter, grayscale=False):
-		if type(parameter) == Video or type(parameter) == EdgeVideo:
+		if isinstance(parameter,Video):
 			Debug.Print("Converting from Existing Video (parameter is video).")
-			self.video_frames = parameter.video_frames
-			self.grayscale = parameter.grayscale
-			self.video_filename = parameter.video_filename
-			self.frames_per_second = parameter.frames_per_second
 		else:
 			Debug.Print("New Video entirely (parameter is filename).")
-			super(self.__class__, self).__init__(parameter, grayscale)
+		super(self.__class__, self).__init__(parameter, grayscale)
 		#
 		# Now, let's edgify each frame.
 		#
@@ -130,6 +132,26 @@ class EdgeVideo(Video):
 			new_video_frames = []
 			for f in self.video_frames:
 				new_video_frames.append(skimage.img_as_float(skimage.filter.canny(f)))
+			self.video_frames = new_video_frames
+			Debug.Print("len(new_video_frames): %d" % len(new_video_frames))
+		pass
+class ScaleVideo(Video):
+	def __init__(self, parameter, grayscale=False):
+		if isinstance(parameter,Video):
+			Debug.Print("Converting from Existing Video (parameter is video).")
+		else:
+			Debug.Print("New Video entirely (parameter is filename).")
+		super(self.__class__, self).__init__(parameter, grayscale)
+		#
+		# Now, let's scale each frame as long as
+		# this isn't already a scaled video.
+		#
+		if not type(parameter) == ScaleVideo:
+			Debug.Print("Scaling.")
+			new_video_frames = []
+			for f in self.video_frames:
+				# rescale and new_video_frames.append() that here.
+				pass
 			self.video_frames = new_video_frames
 			Debug.Print("len(new_video_frames): %d" % len(new_video_frames))
 		pass
@@ -144,6 +166,10 @@ def TestVideo():
 	ev = EdgeVideo(ev)
 	print("sv = v[0:10]")
 	sv = v[0:10]
+	print("scalev = ScaleVideo(v)")
+	scalev = ScaleVideo(v)
+	print("scalev = ScaleVideo(\"small.ogv\")")
+	scalev = ScaleVideo("small.ogv")
 
 	print("len(v): %d" % len(v))
 	print("len(sv): %d" % len(sv))
