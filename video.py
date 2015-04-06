@@ -9,6 +9,7 @@ import skimage
 import skimage.color
 import skimage.io
 import skimage.filter
+import skimage.transform
 import shutil
 import make_gif
 import tempfile
