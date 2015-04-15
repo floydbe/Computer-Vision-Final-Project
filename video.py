@@ -13,6 +13,7 @@ import skimage.transform
 import shutil
 import make_gif
 import tempfile
+from distance import norm 
 
 class Video(object):
 	def __init__(self, video):
@@ -134,8 +135,11 @@ class GrayVideo(Video):
 		if not type(parameter) == GrayVideo:
 			Debug.Print("Grayscaling.")
 			new_video_frames = []
+			self.norms = []
 			for f in self.video_frames:
-				new_video_frames.append(skimage.color.rgb2gray(f))
+				curr_frame = skimage.color.rgb2gray(f)
+				new_video_frames.append(curr_frame)
+				self.norms.append(norm(curr_frame))
 			self.video_frames = new_video_frames
 			Debug.Print("len(new_video_frames): %d" % len(new_video_frames))
 		pass
@@ -201,7 +205,9 @@ def TestVideo():
 
 	print("len(v): %d" % len(v))
 	print("len(sv): %d" % len(sv))
-
+	
+	grayv = GrayVideo("small.ogv")
+	print("TESTING NORM: %s" % str(grayv.norms))
 	print("GrayVideo(v).dump_frames()")
 	if not GrayVideo(v).dump_frames():
 		print("Error occurred dumping frames.")

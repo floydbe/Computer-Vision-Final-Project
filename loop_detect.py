@@ -12,7 +12,6 @@ from debug import Debug
 from operator import itemgetter
 
 def Match(v, start_frame, end_frame):
-	#ev = EdgeVideo(v)
 	matches = []
 	for f,i in v.sub_iter(start_frame):
 		Debug.Print("i: %d" % i)
