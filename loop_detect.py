@@ -3,7 +3,7 @@
 import cv2
 import numpy as np
 import Image
-from video import Video, EdgeVideo
+from video import Video, EdgeVideo, GrayVideo, ScaleVideo
 from distance import d
 import sys
 import getopt
@@ -64,7 +64,8 @@ if __name__== "__main__":
 		usage(sys.argv[0])
 		sys.exit(1)
 
-	video = Video(filename, grayscale=True)
+	video = Video(filename)
+	video = GrayVideo(video)
 	if end_frame == None:
 		end_frame = len(video)
 

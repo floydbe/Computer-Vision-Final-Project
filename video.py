@@ -15,24 +15,20 @@ import make_gif
 import tempfile
 
 class Video(object):
-	def __init__(self, video, grayscale=False):
+	def __init__(self, video):
 		if isinstance(video,Video):
 			self.video_filename = video.video_filename
-			self.grayscale = video.grayscale
 			self.video_frames = video.video_frames
 			self.frames_per_second = video.frames_per_second
 		else:
 			self.video_filename = video
-			self.grayscale = grayscale
 			self.load()
 
 	def __repr__(self):
 		return """video_filename: %s
-			grayscale: %s
 			# of video_frames: %d
 			frames_per_second: %d""" %\
 			(self.video_filename,
-			str(self.grayscale),
 			len(self.video_frames),
 			self.frames_per_second)
 
@@ -45,10 +41,7 @@ class Video(object):
 		Debug.Print("grab_status: %s" % str(grab_status))
 		while grab_status:
 			grab_frame = cv2.cvtColor(grab_frame, cv2.COLOR_BGR2RGB)
-			if self.grayscale:
-				self.video_frames.append(skimage.color.rgb2gray(grab_frame))
-			else:
-				self.video_frames.append(grab_frame)
+			self.video_frames.append(grab_frame)
 			grab_status, grab_frame = video_capturer.read()
 
 		# Determine the FPS
@@ -114,7 +107,7 @@ class Video(object):
 		if (type(index) == slice):
 			# This is a slice operation.
 			Debug.Print("__getitem__:slice")
-			slice_video = Video(self.video_filename, self.grayscale)
+			slice_video = Video(self.video_filename)
 			slice_video.video_frames = self.video_frames[index.start:index.stop]
 			return slice_video
 		else:
@@ -128,13 +121,31 @@ class Video(object):
 		Debug.Print("__iter__")
 		return Video.VideoIterator(self)
 
-class EdgeVideo(Video):
-	def __init__(self, parameter, grayscale=False):
+class GrayVideo(Video):
+	def __init__(self, parameter):
 		if isinstance(parameter,Video):
 			Debug.Print("Converting from Existing Video (parameter is video).")
 		else:
 			Debug.Print("New Video entirely (parameter is filename).")
-		super(self.__class__, self).__init__(parameter, grayscale)
+		super(self.__class__, self).__init__(parameter)
+		#
+		# Now, let's gray each frame.
+		#
+		if not type(parameter) == GrayVideo:
+			Debug.Print("Grayscaling.")
+			new_video_frames = []
+			for f in self.video_frames:
+				new_video_frames.append(skimage.color.rgb2gray(f))
+			self.video_frames = new_video_frames
+			Debug.Print("len(new_video_frames): %d" % len(new_video_frames))
+		pass
+class EdgeVideo(Video):
+	def __init__(self, parameter):
+		if isinstance(parameter,Video):
+			Debug.Print("Converting from Existing Video (parameter is video).")
+		else:
+			Debug.Print("New Video entirely (parameter is filename).")
+		super(self.__class__, self).__init__(parameter)
 		#
 		# Now, let's edgify each frame.
 		#
@@ -147,12 +158,12 @@ class EdgeVideo(Video):
 			Debug.Print("len(new_video_frames): %d" % len(new_video_frames))
 		pass
 class ScaleVideo(Video):
-	def __init__(self, parameter, grayscale=False):
+	def __init__(self, parameter):
 		if isinstance(parameter,Video):
 			Debug.Print("Converting from Existing Video (parameter is video).")
 		else:
 			Debug.Print("New Video entirely (parameter is filename).")
-		super(self.__class__, self).__init__(parameter, grayscale)
+		super(self.__class__, self).__init__(parameter)
 		#
 		# Now, let's scale each frame as long as
 		# this isn't already a scaled video.
@@ -172,8 +183,8 @@ def TestVideo():
 	print("v = Video(\"small.ogv\")")
 	v = Video("small.ogv")
 	print("v: %s" % str(v))
-	print("ev = EdgeVideo(\"small.ogv\", grayscale=True)")
-	ev = EdgeVideo("small.ogv", grayscale=True)
+	print("ev = EdgeVideo(GrayVideo(\"small.ogv\"))")
+	ev = EdgeVideo(GrayVideo("small.ogv"))
 	print("ev: %s" % str(ev))
 	print("ev = EdgeVideo(ev)")
 	ev = EdgeVideo(ev)
@@ -191,8 +202,8 @@ def TestVideo():
 	print("len(v): %d" % len(v))
 	print("len(sv): %d" % len(sv))
 
-	print("v.dump_frames()")
-	if not v.dump_frames():
+	print("GrayVideo(v).dump_frames()")
+	if not GrayVideo(v).dump_frames():
 		print("Error occurred dumping frames.")
 
 	print("sv.to_animated_gif(\"output_gif.gif\")")
