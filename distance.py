@@ -23,20 +23,7 @@ def d(im1, im2, im1Norm=0, im2Norm=0):
 						continue
 					distance += abs(im1[x][y][z] - im1[x][y][z])**2
 		return (distance / (i1_s[0] * i1_s[1] * i1_s[2]))**(1/2)
-'''
-	y1,x1 = im1.shape
-	y2,x2 = im2.shape
-	if (y1,x1) != (y2,x2):
-		return -1
-	else:
-		distance = 0
-		for a in range(x1):
-			for b in range(y1):
-				if im1[b][a] == im2[b][a]:
-					continue
-				distance += abs(im1[b][a]-im2[b][a])**p
-		return (distance/(x1*y1))**(1.0/p)
-'''
+
 def norm(img):
 	y,x = img.shape
 	total = 0
