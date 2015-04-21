@@ -43,9 +43,10 @@ if __name__== "__main__":
 	filename = None
 	threshold = 0.20
 	do_edge_match_optimization = False
+	do_scale_match_optimization = False
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "s:e:ot:", ["start=", "end=", "optimize", "threshold="])
+		opts, args = getopt.getopt(sys.argv[1:], "s:e:o:t:", ["start=", "end=", "optimize=", "threshold="])
 
 		if len(args) != 1:
 			raise getopt.GetoptError("Must specify a single filename as parameter.")
@@ -58,7 +59,13 @@ if __name__== "__main__":
 			elif o == "e" or o == "end":
 				end_frame = int(a)
 			elif o == "o" or o == "optimize":
-				do_edge_match_optimization = True
+				if a == "edge":
+					do_edge_match_optimization = True
+				if a == "scale":
+					do_scale_match_optimization = True
+				if a == "all":
+					do_edge_match_optimization = True
+					do_scale_match_optimization = True
 			elif o == "t" or o == "threshold":
 				threshold = float(a)
 			print("%s=%s" % (o,a))
@@ -72,18 +79,36 @@ if __name__== "__main__":
 		end_frame = len(video)
 
 	matches = []
-	if do_edge_match_optimization:
+	if do_edge_match_optimization and not do_scale_match_optimization:
 		edge_video = EdgeVideo(video)
 		edge_matches = Match(edge_video, start_frame, end_frame)
 		edge_matches = sorted(edge_matches, key=itemgetter(2))
 		# compute full matches for good edge matches
 		for a,b,distance in edge_matches:
 			if distance < threshold:
-				matches.append((a,b,d(video[a],video[b])))
+				matches.append((a,b,d(video[a],video[b],video.norms[a],video.norms[b])))
+	elif do_scale_match_optimization and not do_edge_match_optimization:
+		scale_video = ScaleVideo(video)
+		scale_matches = Match(scale_video, start_frame, end_frame)
+		scale_matches = sorted(scale_matches, key=itemgetter(2))
+		# compute full matches for good scale matches
+		for a,b,distance in scale_matches:
+			if distance < threshold:
+				matches.append((a,b,d(video[a],video[b],video.norms[a],video[b])))
+	elif do_scale_match_optimization and do_edge_match_optimization:
+		edge_video = EdgeVideo(video)
+		scale_video = ScaleVideo(edge_video)
+		scale_matches = Match(scale_video, start_frame, end_frame)
+		scale_matches = sorted(scale_matches, key=itemgetter(2))
+		# compute full matches for good scale matches
+		for a,b,distance in scale_matches:
+			if distance < threshold:
+				matches.append((a,b,d(video[a],video[b],video.norms[a],video[b])))
 	else:
 		matches = Match(video, start_frame, end_frame)
 
 	matches = sorted(matches, key=itemgetter(2))
+
 	# print matches in csv style.
 	for match in matches:
 		print("%d,%d,%f" % (match[0], match[1], match[2]))
