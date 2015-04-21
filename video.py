@@ -20,6 +20,7 @@ class Video(object):
 		if isinstance(video,Video):
 			self.video_filename = video.video_filename
 			self.video_frames = video.video_frames
+			self.norms = video.norms
 			self.frames_per_second = video.frames_per_second
 		else:
 			self.video_filename = video
@@ -53,7 +54,8 @@ class Video(object):
 		frame_count = video_capturer.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT)
 		video_length = video_capturer.get(cv2.cv.CV_CAP_PROP_POS_MSEC)/1000.0
 		self.frames_per_second = int(frame_count/video_length)
-
+		self.norms = [0]*frame_count
+		
 		video_capturer.release()
 
 	def dump_frames(self, output_dir="./frames", output_extension="jpg"):
@@ -135,12 +137,13 @@ class GrayVideo(Video):
 		if not type(parameter) == GrayVideo:
 			Debug.Print("Grayscaling.")
 			new_video_frames = []
-			self.norms = []
+			norms = []
 			for f in self.video_frames:
 				curr_frame = skimage.color.rgb2gray(f)
 				new_video_frames.append(curr_frame)
-				self.norms.append(norm(curr_frame))
+				norms.append(norm(curr_frame))
 			self.video_frames = new_video_frames
+			self.norms = norms
 			Debug.Print("len(new_video_frames): %d" % len(new_video_frames))
 		pass
 class EdgeVideo(Video):
@@ -156,11 +159,16 @@ class EdgeVideo(Video):
 		if not type(parameter) == EdgeVideo:
 			Debug.Print("Canny-fying.")
 			new_video_frames = []
+			norms = []
 			for f in self.video_frames:
-				new_video_frames.append(skimage.img_as_float(skimage.filter.canny(f)))
+				curr_frame = skimage.filter.canny(f)
+				new_video_frames.append(curr_frame)
+				norms.append(norm(curr_frame))
 			self.video_frames = new_video_frames
+			self.norms = norms
 			Debug.Print("len(new_video_frames): %d" % len(new_video_frames))
 		pass
+
 class ScaleVideo(Video):
 	def __init__(self, parameter):
 		if isinstance(parameter,Video):
@@ -175,10 +183,13 @@ class ScaleVideo(Video):
 		if not type(parameter) == ScaleVideo:
 			Debug.Print("Scaling.")
 			new_video_frames = []
+			norms = []
 			for f in self.video_frames:
-				new_f = skimage.transform.resize(f,(128,128))
-				new_video_frames.append(new_f)
+				curr_fram = skimage.transform.resize(f,(128,128))
+				new_video_frames.append(curr_frame)
+				norms.append(norm(curr_frame))
 			self.video_frames = new_video_frames
+			self.norms = norms
 			Debug.Print("len(new_video_frames): %d" % len(new_video_frames))
 		pass
 

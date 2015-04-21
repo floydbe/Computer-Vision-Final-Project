@@ -20,10 +20,7 @@ def Match(v, start_frame, end_frame):
 		for g,j in v.sub_iter(i):
 			distance = 0.0
 			if i != j:
-				if hasattr(v, "norms"):
-					distance = d(f,g,v.norms[i],v.norms[j])
-				else:
-					distance = d(f,g)
+				distance = d(f,g,v.norms[i],v.norms[j])
 			matches.append((i,j,distance))
 			Debug.Print("d(%d,%d) = %f" % (i, j, distance))
 	return matches
