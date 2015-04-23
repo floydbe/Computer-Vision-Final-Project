@@ -117,6 +117,8 @@ class Video(object):
 			Debug.Print("__getitem__")
 			# This is a simple frame index operation.
 			return self.video_frames[index]
+	def __setitem__(self, index, frame):
+		self.video_frames[index] = frame
 	def __len__(self):
 		Debug.Print("__len__")
 		return len(self.video_frames)
