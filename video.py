@@ -80,6 +80,16 @@ class Video(object):
 		# Not wild about using this helper.
 		shutil.rmtree(temp_folder_name, ignore_errors=True)
 
+	def apply_mask(self, mask):
+		mvideo = Video(self)
+		for f, i in mvideo:
+			for y in range(f.shape[0]):
+				for x in range(f.shape[1]):
+					if abs(f[y][x] - mask[y][x]) <= mask.threshold():
+						f[y][x] = 0.0
+			mvideo[i] = f
+		return mvideo
+
 	class VideoIterator:
 		def __init__(self, v, start_frame=0):
 			Debug.Print("__init__")
@@ -125,16 +135,6 @@ class Video(object):
 	def __iter__(self):
 		Debug.Print("__iter__")
 		return Video.VideoIterator(self)
-
-	def apply_mask(self, mask):
-		mvideo = Video(self)
-		for f, i in mvideo:
-			for y in range(f.shape[0]):
-				for x in range(f.shape[1]):
-					if abs(f[y][x] - mask[y][x]) <= mask.threshold():
-						f[y][x] = 0.0
-			mvideo[i] = f
-		return mvideo
 
 class GrayVideo(Video):
 	def __init__(self, parameter):
