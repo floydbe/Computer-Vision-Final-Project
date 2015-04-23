@@ -54,7 +54,7 @@ class Video(object):
 		frame_count = video_capturer.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT)
 		video_length = video_capturer.get(cv2.cv.CV_CAP_PROP_POS_MSEC)/1000.0
 		self.frames_per_second = int(frame_count/video_length)
-		self.norms = [0]*frame_count
+		self.norms = [0]*int(frame_count)
 		
 		video_capturer.release()
 
