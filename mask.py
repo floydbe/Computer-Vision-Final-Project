@@ -16,15 +16,26 @@ import make_gif
 import tempfile
 import numpy
 
-class Median(object):
-	def __init__(self, video):
-		self.video = video
-		self._median = None
+class Mask(object):
+	def __init__(self):
+		self.mask = None
 
-	def median(self):
-		if self._median == None:
-			self._calculate_median()
-		return self._median
+	def __getitem__(self, index):
+		if self.mask and index<len(self.mask):
+			return self.mask[index]
+		return None
+	
+	def threshold(self):
+		return 0.0
+
+class MedianMask(Mask):
+	def __init__(self, video):
+		super(self.__class__, self).__init__()
+		self.video = video
+		self._calculate_median()
+	
+	def threshold(self):
+		return 0.05
 
 	def _calculate_median(self):
 		median_height = self.video[0].shape[0]
@@ -32,7 +43,7 @@ class Median(object):
 		medianl = [[ [] \
 			for x in range(median_height) ]
 			for x in range(median_width) ] 
-		self._median = [[ 0 \
+		self.mask = [[ 0 \
 			for x in range(median_height) ]
 			for x in range(median_width) ] 
 		for f, i in self.video:
@@ -41,22 +52,11 @@ class Median(object):
 					medianl[y][x].append(f[y][x])
 		for y in range(median_height):
 			for x in range(median_width):
-				self._median[y][x] = numpy.median(medianl[y][x])
-
-	def subtract_median(self):
-		median = self.median()
-		mvideo = Video(self.video)
-		for f, i in mvideo:
-			for y in range(f.shape[0]):
-				for x in range(f.shape[1]):
-					if abs(f[y][x] - median[y][x]) <= 0.05:
-						f[y][x] = 0.0
-			mvideo[i] = f
-		return mvideo
+				self.mask[y][x] = numpy.median(medianl[y][x])
 
 if __name__== "__main__":
 	v = GrayVideo("test_inputs/small_sample2.ogv")
 	v = v[72:82]
-	m = Median(v)
-	m.subtract_median().to_animated_gif("median_gif.gif")
+	m = MedianMask(v)
+	v.apply_mask(m).to_animated_gif("median_gif.gif")
 	pass

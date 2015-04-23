@@ -126,6 +126,16 @@ class Video(object):
 		Debug.Print("__iter__")
 		return Video.VideoIterator(self)
 
+	def apply_mask(self, mask):
+		mvideo = Video(self)
+		for f, i in mvideo:
+			for y in range(f.shape[0]):
+				for x in range(f.shape[1]):
+					if abs(f[y][x] - mask[y][x]) <= mask.threshold():
+						f[y][x] = 0.0
+			mvideo[i] = f
+		return mvideo
+
 class GrayVideo(Video):
 	def __init__(self, parameter):
 		if isinstance(parameter,Video):
