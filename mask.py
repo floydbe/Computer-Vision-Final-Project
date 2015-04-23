@@ -24,7 +24,7 @@ class Mask(object):
 		if self.mask and index<len(self.mask):
 			return self.mask[index]
 		return None
-	
+
 	def threshold(self):
 		return 0.0
 
@@ -54,9 +54,37 @@ class MedianMask(Mask):
 			for x in range(median_width):
 				self.mask[y][x] = numpy.median(medianl[y][x])
 
+class MeanMask(Mask):
+	def __init__(self, video):
+		super(self.__class__, self).__init__()
+		self.video = video
+		self._calculate_mean()
+
+	def threshold(self):
+		return 0.10
+
+	def _calculate_mean(self):
+		mean_height = self.video[0].shape[0]
+		mean_width = self.video[0].shape[1]
+		meanl = [[ 0.0 \
+			for x in range(mean_height) ]
+			for x in range(mean_width) ]
+		self.mask = [[ 0 \
+			for x in range(mean_height) ]
+			for x in range(mean_width) ]
+		for f, i in self.video:
+			for y in range(f.shape[0]):
+				for x in range(f.shape[1]):
+					meanl[y][x] += f[y][x]
+		for y in range(mean_height):
+			for x in range(mean_width):
+				self.mask[y][x] = meanl[y][x] / len(self.video)
+
 if __name__== "__main__":
 	v = GrayVideo("test_inputs/small_sample2.ogv")
 	v = v[72:82]
 	m = MedianMask(v)
 	v.apply_mask(m).to_animated_gif("median_gif.gif")
+	m = MeanMask(v)
+	v.apply_mask(m).to_animated_gif("mean_gif.gif")
 	pass
