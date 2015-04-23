@@ -91,7 +91,7 @@ if __name__== "__main__":
 		# compute full matches for good scale matches
 		for a,b,distance in scale_matches:
 			if distance < threshold:
-				matches.append((a,b,d(video[a],video[b],video.norms[a],video[b])))
+				matches.append((a,b,d(video[a],video[b],video.norms[a],video.norms[b])))
 	elif do_scale_match_optimization and do_edge_match_optimization:
 		edge_video = EdgeVideo(video)
 		scale_video = ScaleVideo(edge_video)
@@ -100,7 +100,7 @@ if __name__== "__main__":
 		# compute full matches for good scale matches
 		for a,b,distance in scale_matches:
 			if distance < threshold:
-				matches.append((a,b,d(video[a],video[b],video.norms[a],video[b])))
+				matches.append((a,b,d(video[a],video[b],video.norms[a],video.norms[b])))
 	else:
 		matches = Match(video, start_frame, end_frame)
 
