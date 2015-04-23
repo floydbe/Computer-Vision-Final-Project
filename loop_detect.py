@@ -11,16 +11,28 @@ import re
 from debug import Debug
 from operator import itemgetter
 
-def Match(v, start_frame, end_frame):
+def Match(v, start_frame, end_frame, max_span = None):
 	matches = []
+
+	# if max_span was not user-supplied,
+	# set it to the length of v to make
+	# calculation below simpler.
+	if max_span == None:
+		max_span = len(v)
+
 	for f,i in v.sub_iter(start_frame):
-		Debug.Print("i: %d" % i)
 		if i > end_frame:
 			break
 		for g,j in v.sub_iter(i):
 			distance = 0.0
-			if i != j:
-				distance = d(f,g,v.norms[i],v.norms[j])
+			# if we are calculating a distance that is longer than the
+			# max_span, move on.
+			if (j-i) >= max_span:
+				break
+			# don't calculate the distance to ourselves.
+			if i == j:
+				continue
+			distance = d(f,g,v.norms[i],v.norms[j])
 			matches.append((i,j,distance))
 			Debug.Print("d(%d,%d) = %f" % (i, j, distance))
 	return matches
@@ -29,6 +41,7 @@ def usage(myname):
 	print("""%s 
 	[-s, --start <start frame>]
 	[-e, --end <end frame> ] 
+	[-l, --length <maximum loop length> ]
 	[-o, --optimize [edge, scale, all] ]
 	[-t, --threshold <threshold> (only applicable in combination with -o)]
 	<video filename>""" % myname)
@@ -36,6 +49,7 @@ def usage(myname):
 if __name__== "__main__":
 	start_frame = 0
 	end_frame = None
+	max_length = None
 	video = None
 	filename = None
 	threshold = 0.20
@@ -43,7 +57,7 @@ if __name__== "__main__":
 	do_scale_match_optimization = False
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "s:e:o:t:", ["start=", "end=", "optimize=", "threshold="])
+		opts, args = getopt.getopt(sys.argv[1:], "s:e:o:t:l:", ["start=", "end=", "optimize=", "threshold=", "length="])
 
 		if len(args) != 1:
 			raise getopt.GetoptError("Must specify a single filename as parameter.")
@@ -55,6 +69,8 @@ if __name__== "__main__":
 				start_frame = int(a)
 			elif o == "e" or o == "end":
 				end_frame = int(a)
+			elif o == "l" or o == "length":
+				max_length = int(a)
 			elif o == "o" or o == "optimize":
 				if a == "edge":
 					do_edge_match_optimization = True
@@ -78,7 +94,7 @@ if __name__== "__main__":
 	matches = []
 	if do_edge_match_optimization and not do_scale_match_optimization:
 		edge_video = EdgeVideo(video)
-		edge_matches = Match(edge_video, start_frame, end_frame)
+		edge_matches = Match(edge_video, start_frame, end_frame, max_length)
 		edge_matches = sorted(edge_matches, key=itemgetter(2))
 		# compute full matches for good edge matches
 		for a,b,distance in edge_matches:
@@ -86,7 +102,7 @@ if __name__== "__main__":
 				matches.append((a,b,d(video[a],video[b],video.norms[a],video.norms[b])))
 	elif do_scale_match_optimization and not do_edge_match_optimization:
 		scale_video = ScaleVideo(video)
-		scale_matches = Match(scale_video, start_frame, end_frame)
+		scale_matches = Match(scale_video, start_frame, end_frame, max_length)
 		scale_matches = sorted(scale_matches, key=itemgetter(2))
 		# compute full matches for good scale matches
 		for a,b,distance in scale_matches:
@@ -95,14 +111,14 @@ if __name__== "__main__":
 	elif do_scale_match_optimization and do_edge_match_optimization:
 		edge_video = EdgeVideo(video)
 		scale_video = ScaleVideo(edge_video)
-		scale_matches = Match(scale_video, start_frame, end_frame)
+		scale_matches = Match(scale_video, start_frame, end_frame, max_length)
 		scale_matches = sorted(scale_matches, key=itemgetter(2))
 		# compute full matches for good scale matches
 		for a,b,distance in scale_matches:
 			if distance < threshold:
 				matches.append((a,b,d(video[a],video[b],video.norms[a],video.norms[b])))
 	else:
-		matches = Match(video, start_frame, end_frame)
+		matches = Match(video, start_frame, end_frame, max_length)
 
 	matches = sorted(matches, key=itemgetter(2))
 
