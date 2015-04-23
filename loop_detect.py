@@ -29,7 +29,7 @@ def usage(myname):
 	print("""%s 
 	[-s, --start <start frame>]
 	[-e, --end <end frame> ] 
-	[-o, --optimize ]
+	[-o, --optimize [edge, scale, all] ]
 	[-t, --threshold <threshold> (only applicable in combination with -o)]
 	<video filename>""" % myname)
 
