@@ -173,7 +173,7 @@ class EdgeVideo(Video):
 			new_video_frames = []
 			norms = []
 			for f in self.video_frames:
-				curr_frame = skimage.filter.canny(f)
+				curr_frame = skimage.img_as_float(skimage.filter.canny(f))
 				new_video_frames.append(curr_frame)
 				norms.append(norm(curr_frame))
 			self.video_frames = new_video_frames
@@ -197,7 +197,7 @@ class ScaleVideo(Video):
 			new_video_frames = []
 			norms = []
 			for f in self.video_frames:
-				curr_fram = skimage.transform.resize(f,(128,128))
+				curr_frame = skimage.transform.resize(f,(128,128))
 				new_video_frames.append(curr_frame)
 				norms.append(norm(curr_frame))
 			self.video_frames = new_video_frames
