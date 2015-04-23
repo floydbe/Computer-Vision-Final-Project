@@ -44,14 +44,15 @@ def usage(myname):
 	[-l, --length <maximum loop length> ]
 	[-o, --optimize [edge, scale, all] ]
 	[-t, --threshold <threshold> (only applicable in combination with -o)]
-	<video filename>""" % myname)
+	<input video filename> <output animated gif filename>""" % myname)
 
 if __name__== "__main__":
 	start_frame = 0
 	end_frame = None
 	max_length = None
 	video = None
-	filename = None
+	input_filename = None
+	output_filename = None
 	threshold = 0.20
 	do_edge_match_optimization = False
 	do_scale_match_optimization = False
@@ -59,9 +60,10 @@ if __name__== "__main__":
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "s:e:o:t:l:", ["start=", "end=", "optimize=", "threshold=", "length="])
 
-		if len(args) != 1:
-			raise getopt.GetoptError("Must specify a single filename as parameter.")
-		filename = args[0]
+		if len(args) != 2:
+			raise getopt.GetoptError("Must specify input and output filenames as parameters.")
+		input_filename = args[0]
+		output_filename = args[1]
 
 		for o, a in opts:
 			o = re.sub("^-*", "", o)
@@ -124,4 +126,9 @@ if __name__== "__main__":
 
 	# print matches in csv style.
 	for match in matches:
-		print("%d,%d,%f" % (match[0], match[1], match[2]))
+		Debug.Print("%d,%d,%f" % (match[0], match[1], match[2]))
+	if len(matches):
+		Debug.Print("Generating %s ..." % output_filename)
+		video[matches[0][0]:matches[0][1]].to_animated_gif(output_filename)
+	else:
+		print("Error: No matches!")
