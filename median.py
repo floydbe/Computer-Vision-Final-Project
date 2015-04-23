@@ -5,7 +5,7 @@ from debug import Debug
 import cv2
 import os
 import os.path
-from video import Video
+from video import Video, GrayVideo
 import skimage
 import skimage.color
 import skimage.io
@@ -55,7 +55,7 @@ class Median(object):
 		return mvideo
 
 if __name__== "__main__":
-	v = Video("test_inputs/small_sample2.ogv", grayscale=True)
+	v = GrayVideo("test_inputs/small_sample2.ogv")
 	v = v[72:82]
 	m = Median(v)
 	m.subtract_median().to_animated_gif("median_gif.gif")
