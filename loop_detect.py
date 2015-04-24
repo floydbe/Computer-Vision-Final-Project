@@ -93,8 +93,10 @@ if __name__== "__main__":
 	if end_frame == None:
 		end_frame = len(video)
 
+	# matches is a list of tuples: (start frame, end frame, distance)
 	matches = []
 	if do_edge_match_optimization and not do_scale_match_optimization:
+		# Edge optimization but no scale optimization
 		edge_video = EdgeVideo(video)
 		edge_matches = Match(edge_video, start_frame, end_frame, max_length)
 		edge_matches = sorted(edge_matches, key=itemgetter(2))
@@ -103,6 +105,7 @@ if __name__== "__main__":
 			if distance < threshold:
 				matches.append((a,b,d(video[a],video[b],video.norms[a],video.norms[b])))
 	elif do_scale_match_optimization and not do_edge_match_optimization:
+		# Scale optimization but no edge optimization
 		scale_video = ScaleVideo(video)
 		scale_matches = Match(scale_video, start_frame, end_frame, max_length)
 		scale_matches = sorted(scale_matches, key=itemgetter(2))
@@ -111,6 +114,7 @@ if __name__== "__main__":
 			if distance < threshold:
 				matches.append((a,b,d(video[a],video[b],video.norms[a],video.norms[b])))
 	elif do_scale_match_optimization and do_edge_match_optimization:
+		# Both optimizations
 		edge_video = EdgeVideo(video)
 		scale_video = ScaleVideo(edge_video)
 		scale_matches = Match(scale_video, start_frame, end_frame, max_length)
@@ -122,9 +126,15 @@ if __name__== "__main__":
 	else:
 		matches = Match(video, start_frame, end_frame, max_length)
 
+	# Sort the matches according to their distance values
+	# which is the 2th index of items in matches.
 	matches = sorted(matches, key=itemgetter(2))
 
+	# make matches a minimum distance of three frames.
+	matches = [ match for match in matches if match[1]-match[0] >= 9 ]
+
 	# print matches in csv style.
+	Debug.Print("Results: \n")
 	for match in matches:
 		Debug.Print("%d,%d,%f" % (match[0], match[1], match[2]))
 	if len(matches):
