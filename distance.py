@@ -13,7 +13,17 @@ def d(im1, im2, im1Norm=0, im2Norm=0):
 			for y in range(i1_s[1]):
 				product = im1[x][y] * im2[x][y]
 				total += product
-		return np.sqrt(im1Norm + im2Norm - 2*total)
+		existing_np_err = np.seterr(all='raise')
+		try:
+			result = np.sqrt(im1Norm + im2Norm - 2*total)
+		except FloatingPointError as fpe:
+			print("Error: %s" % str(fpe))
+			print("im1Norm: %s, im2Norm: %s, total: %s" % (str(im1Norm),
+				str(im2Norm),
+				str(total)))
+			raise fpe
+		np.seterr(**existing_np_err)
+		return result
 	elif (len(i1_s) == 3):
 		distance = 0
 		for x in range(i1_s[0]):
