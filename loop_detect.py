@@ -92,7 +92,7 @@ if __name__== "__main__":
 		usage(sys.argv[0])
 		sys.exit(1)
 
-	video = Video(filename)
+	video = Video(input_filename)
 	video = GrayVideo(video)
 	if end_frame == None:
 		end_frame = len(video)
