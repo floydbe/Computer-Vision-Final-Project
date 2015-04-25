@@ -28,14 +28,23 @@ class Mask(object):
 	def threshold(self):
 		return 0.0
 
+	def decide(self, frame, index, existing):
+		return existing
+
 class MedianMask(Mask):
 	def __init__(self, video):
-		super(self.__class__, self).__init__()
+		super(MedianMask, self).__init__()
 		self.video = video
 		self._calculate_median()
 	
 	def threshold(self):
 		return 0.05
+
+	def decide(self, frame, index, existing):
+		if abs(existing - self.mask[index[0]][index[1]]) < self.threshold():
+			return 0.0
+		else:
+			return existing
 
 	def _calculate_median(self):
 		median_height = self.video[0].shape[0]
@@ -54,14 +63,46 @@ class MedianMask(Mask):
 			for x in range(median_width):
 				self.mask[y][x] = numpy.median(medianl[y][x])
 
+class MedianMaskBackground(MedianMask):
+	def __init__(self, video, background):
+		super(MedianMaskBackground, self).__init__(video)
+		self.background = background
+
+	def decide(self, frame, index, existing):
+		if abs(self.video[frame][index[0]][index[1]] -
+			self.mask[index[0]][index[1]]) < self.threshold():
+			return self.background[index[0], index[1]]
+		else:
+			return existing
+
+class MedianMaskColorize(MedianMask):
+	def __init__(self, video):
+		super(MedianMaskColorize, self).__init__(video)
+		self.rgb_gray_video = GrayVideo(video)
+		for f,i in self.rgb_gray_video:
+			self.rgb_gray_video[i] = skimage.img_as_ubyte(skimage.color.gray2rgb(f))
+
+	def decide(self, frame, index, existing):
+		if abs(self.video[frame][index[0]][index[1]] -
+			self.mask[index[0]][index[1]]) < self.threshold():
+			return self.rgb_gray_video[frame][index[0], index[1]]
+		else:
+			return existing
+
 class MeanMask(Mask):
 	def __init__(self, video):
-		super(self.__class__, self).__init__()
+		super(MeanMask, self).__init__()
 		self.video = video
 		self._calculate_mean()
 
 	def threshold(self):
 		return 0.10
+
+	def decide(self, frame, index, existing):
+		if abs(existing - self.mean[index[0]][index[1]]) < self.threshold():
+			return 0.0
+		else:
+			return existing
 
 	def _calculate_mean(self):
 		mean_height = self.video[0].shape[0]

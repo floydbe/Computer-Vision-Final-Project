@@ -85,8 +85,7 @@ class Video(object):
 		for f, i in mvideo:
 			for y in range(f.shape[0]):
 				for x in range(f.shape[1]):
-					if abs(f[y][x] - mask[y][x]) <= mask.threshold():
-						f[y][x] = 0.0
+					f[y][x] = mask.decide(i, (y,x), f[y][x])
 			mvideo[i] = f
 		return mvideo
 
