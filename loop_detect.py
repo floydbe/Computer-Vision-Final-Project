@@ -21,7 +21,7 @@ def Match(v, start_frame, end_frame, min_span = 0, max_span = None):
 		max_span = len(v)
 
 	for f,i in v.sub_iter(start_frame):
-		if i > end_frame:
+		if i > end_frame or (i + min_span) >= len(v):
 			break
 		for g,j in v.sub_iter(i + min_span):
 			distance = 0.0
@@ -58,9 +58,10 @@ if __name__== "__main__":
 	threshold = 0.20
 	do_edge_match_optimization = False
 	do_scale_match_optimization = False
-
+	interative_mode = False
+	
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "s:e:o:t:l:m:", ["start=", "end=", "optimize=", "threshold=", "min-length=", "max-length="])
+		opts, args = getopt.getopt(sys.argv[1:], "s:e:o:t:l:m:i", ["start=", "end=", "optimize=", "threshold=", "min-length=", "max-length=", "interactive"])
 
 		if len(args) != 2:
 			raise getopt.GetoptError("Must specify input and output filenames as parameters.")
@@ -87,6 +88,8 @@ if __name__== "__main__":
 					do_scale_match_optimization = True
 			elif o == "t" or o == "threshold":
 				threshold = float(a)
+			elif o == "i" or o == "interactive":
+				interactive_mode = True
 			print("%s=%s" % (o,a))
 	except getopt.GetoptError as error:
 		usage(sys.argv[0])
@@ -183,6 +186,14 @@ if __name__== "__main__":
 		Debug.Print("%d,%d,%f" % (match[0], match[1], match[2]))
 	if len(matches):
 		Debug.Print("Generating %s ..." % output_filename)
-		video[matches[0][0]:matches[0][1]].to_animated_gif(output_filename)
+		
+		if interactive_mode:
+			for i in range(len(matches)):
+				video[matches[i][0]:matches[i][1]].to_animated_gif(output_filename)
+				usr_in = int(input("Enter 'yes' to accept this result or 'no' to replace it with the next-best result: "))
+				if usr_in == "yes":
+					exit()
+		else:
+			video[matches[0][0]:matches[0][1]].to_animated_gif(output_filename)
 	else:
 		print("Error: No matches!")
