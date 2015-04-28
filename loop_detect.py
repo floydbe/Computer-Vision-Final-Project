@@ -95,8 +95,13 @@ if __name__== "__main__":
 		usage(sys.argv[0])
 		sys.exit(1)
 
-	video = Video(input_filename)
-	video = GrayVideo(video)
+	try:
+		video = Video(input_filename)
+		video = GrayVideo(video)
+	except IOError as error:
+		print("%s\n" % str(error))
+		sys.exit(1)
+
 	if end_frame == None:
 		end_frame = len(video)
 

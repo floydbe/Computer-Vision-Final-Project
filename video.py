@@ -38,8 +38,10 @@ class Video(object):
 		self.video_frames = []
 		video_capturer = cv2.VideoCapture(self.video_filename)
 		if video_capturer == None:
-			print("Error!")
+			raise IOError("VideoCapture could not load %s" % self.video_filename)
 		grab_status, grab_frame = video_capturer.read()
+		if not grab_status:
+			raise IOError("VideoCapture could not load %s" % self.video_filename)
 		Debug.Print("grab_status: %s" % str(grab_status))
 		while grab_status:
 			grab_frame = cv2.cvtColor(grab_frame, cv2.COLOR_BGR2RGB)
