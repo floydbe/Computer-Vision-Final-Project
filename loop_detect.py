@@ -190,9 +190,11 @@ if __name__== "__main__":
 		if interactive_mode:
 			for i in range(len(matches)):
 				video[matches[i][0]:matches[i][1]].to_animated_gif(output_filename)
-				usr_in = input("Enter 'yes' to accept this result or 'no' to replace it with the next-best result: ")
+				usr_in = raw_input("Enter 'yes' to accept this result or 'no' to replace it with the next-best result: ")
 				if usr_in == "yes":
 					exit()
+			print("No more results")
+			exit()
 		else:
 			video[matches[0][0]:matches[0][1]].to_animated_gif(output_filename)
 	else:
