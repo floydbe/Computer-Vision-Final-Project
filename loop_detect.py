@@ -59,7 +59,7 @@ if __name__== "__main__":
 	threshold = 0.20
 	do_edge_match_optimization = False
 	do_scale_match_optimization = False
-	interative_mode = False
+	interactive_mode = False
 	
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "s:e:o:t:l:m:i", ["start=", "end=", "optimize=", "threshold=", "min-length=", "max-length=", "interactive"])
