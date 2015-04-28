@@ -45,6 +45,7 @@ def usage(myname):
 [-m, --max-length <minimum loop length (# for frames or #.#s for seconds)> ]
 [-o, --optimize [edge, scale, all] ]
 [-t, --threshold <threshold> (only applicable in combination with -o)]
+[-i, --interactive]
 <input video filename> <output animated gif filename>""" % myname)
 
 if __name__== "__main__":
