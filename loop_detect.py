@@ -53,6 +53,7 @@ if __name__== "__main__":
 	end_frame = None
 	max_length = None
 	min_length = 0
+	original_video = None
 	video = None
 	input_filename = None
 	output_filename = None
@@ -97,8 +98,8 @@ if __name__== "__main__":
 		sys.exit(1)
 
 	try:
-		video = Video(input_filename)
-		video = GrayVideo(video)
+		original_video = Video(input_filename)
+		video = GrayVideo(original_video)
 	except IOError as error:
 		print("%s\n" % str(error))
 		sys.exit(1)
@@ -195,13 +196,13 @@ if __name__== "__main__":
 		
 		if interactive_mode:
 			for i in range(len(matches)):
-				video[matches[i][0]:matches[i][1]].to_animated_gif(output_filename)
+				original_video[matches[i][0]:matches[i][1]].to_animated_gif(output_filename)
 				usr_in = raw_input("Enter 'yes' to accept this result or 'no' to replace it with the next-best result: ")
 				if usr_in == "yes":
 					exit()
 			print("No more results")
 			exit()
 		else:
-			video[matches[0][0]:matches[0][1]].to_animated_gif(output_filename)
+			original_video[matches[0][0]:matches[0][1]].to_animated_gif(output_filename)
 	else:
 		print("Error: No matches!")
