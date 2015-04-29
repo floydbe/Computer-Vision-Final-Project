@@ -8,6 +8,33 @@ A \textit{frame} is a two-dimensional array of pixels and a \textit{video} is a 
 An \textit{approximate frame} $f'$ is a frame derived from another frame $f$. $f'$'s pixel values are related to $f$'s pixel values according to some function. Depending on the function, $f'$ may contain less or as much information as $f$. As the name implies, however, it is often the case that $f’$ contains less information than f. 
 Let $D$ be a function that takes an input video $v$ and two indexes $x$ and $y$ and returns a scalar result. The result of $D(v, x,y)$ is the distance between the frames $x$ and $y$ in the video $v$. There are many different possible ways to define $D$ and calculate the distance. Our definition is based on Euclidean distance and outlined below in detail.
 We define a \textit{video sequence} as a pair of indices $(x,y)$ where $x$ is greater than $y$ and $x$ and $y$ are less than $l$. A video sequence $(x,y)$ for video $v$ is \textit{well-looping} if $D(v,x,y) < T$ where $T$ is a threshold value. A \textit{video loop} is a well-looping video sequence $(x,y)$ for video $v$.
+\subsubsection{Distance}
+\label{sec:Distance}
+The distance metric used in our approach is based on the Euclidean distance. It is as follows:
+$$d(F_1,  F_2) = \sqrt{\sum_{i=1}^N (F_1[i] -  F_2[i])^2}.$$
+Note that the above metric is for intensity images. The core idea still applies to full color images; the internal subtraction is just done in each color channel. 
+
+This distance metric is simple enough to implement: the full color version is shown in pseudocode below.
+\begin{verbatim}
+def d(im1, im2):
+  i1_s = im1.shape
+  i2_s = im2.shape
+  distance = 0
+   for x in range(i1_s[0]):
+    for y in range(i1_s[1]):
+     for z in range(i1_s[2]):
+      if im1[x][y][z] == im2[x][y][z]:
+       continue
+      distance += abs(im1[x][y][z] 
+       - im1[x][y][z])**2
+     return (distance /
+       (i1_s[0] * i1_s[1] * i1_s[2]))**(1/2)
+\end{verbatim}
+Despite its simplicity, most of our distance calculations do not follow this implementation. We rewrite it in a mathematically equivalent way, according to the law of consines. The above equation can be reformed into the following:
+																																														$$d(F_1,  F_2) = \sqrt{ \|F_1\|_2^2 + \| F_2\|_2^2 - 2 (F_1 \cdot  F_2) }$$
+																																														where the notations are used
+																																														$$\|F\|_2^2 = \sum_{i=1}^N F[i]^2,  \,\,\,\,\,\,\, F_1 \cdot F_2 =  \sum_{i=1}^N F_1[i]F_2[i]$$
+																																														This form of the distance equation performs the same as the original, but has an added benefit: because $\|F\|_2^2$ depends only on a single frame (and not a pair of frames), it can be precomputed. This leaves the actual distance formula with fewer calculations. The original had approximately $3N$ calculations: $N$ subtractions, $N$ multiplications, and $N-1$ additions. The new distance formula, with the norms precomputed only requires $2N$ calculations, resulting in an overall speedup. 
 \subsubsection{Masks}
 \label{sec:Masks}
 Masks can be used to filter or replace pixel values in the frames of a video \cite{Piccardi2004}. For example, a mask can filter out all the blue in the frames of a video or replace all pixels outside a particular region with pixels from an external image. A mask might also indicate the region of frames where interesting motion exists throughout a video. 
