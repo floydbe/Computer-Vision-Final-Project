@@ -42,9 +42,28 @@ In the scope of this project, we define the mask as a single two-dimensional arr
 Masks can serve two purposes in building video loops: functional and aesthetic. Functionally, masks may help the loop detection algorithm stabilize a shaky input video. A mask could define the moving parts of the video and build approximate frames from that subregion. A user could define a mask as a hint to the loop detection algorithm. We did not implement functional masks in the current version of the system.
 Aesthetic masks affect the look of the video produced by the system. For example, they could be used to define the regions of the frames that should be replaced with a solid color or cropped out entirely. We implemented two different aesthetic masks: colorize and background. The colorize mask is used to define a region of pixels of a frame that should retain their original color values -- pixels outside the region will be converted to grayscale. The background mask defines a region of pixels of a frame that should be replaced with pixel values from some external image. 
 In the system, masks can be defined according to the median and mean values of a pixel across a video. Masks are applied to frames depending on the difference between the actual value of a pixel and the median (mean) value of that pixel throughout the video. As mentioned above, each mask defines a way to alter the pixel value when the difference exceeds the threshold. 
+\subsubsection{Pipeline}
+\label{sec:Pipeline}
+\begin{figure*}
+\centering
+\includegraphics[width=1.0\textwidth]{loop-pipeline.png}
+\caption{Overall workflow of UpvoteetovpU}
+\label{fig:Pipeline}
+\end{figure*}
+The final pipeline for our approach is as follows: first, user parameters are read and their effects are implemented. The possible parameters are shown by example:
+\begin{itemize}
+\item \textbf{-o all} : Performs optimization based on edges and downsampling
+\item \textbf{-l 1s -m 7s} : Restricts the output length to be between 1 second and 7 seconds. If parameters do not include the `s', they will be treated as frame counts
+\item \textbf{-s 100 -e 250} : Restricts the algorithm's search space to starting at the $100^{th}$ line and ending at the $250^{th}$ line
+\item \textbf{-t 20} : sets the threshold for determining which frame pairs are testing in full colorspace (is meaningless if no optimization is used)
+\item \textbf{-i} : Runs in interactive mode, allowing user to see more than just the single best output
+\end{itemize}
+
+With these parameters set, the next step in the pipeline is to create the relevant Video objects. If the user has opted to compute any approximations for an optimization (such as edge frames or scaled frames), those are computed. Then, the approximation is run through a function that computes the distance between all relevant pairs of frames. It returns a list of frame pairs and distances that is then sorted for distance. All of the candidate pairs from the approximations that have a distance below the set threshold are run through the full color distance function. Those results are also sorted for distance. Then, the best frame pair for creating a perfect loop is the first item in the sorted list. In regular mode, a GIF is created with those endpoints. In interactive mode, the user can opt to get the next-best result if the current one is not desirable.
+
 \subsection{Implementation Design}
 \label{sec:ImplementationDesign}
-The system is implemented in Python and uses a set of external libraries. 
+The system is implemented in Python and uses a set of external libraries. The system relies on NumPy \cite{NumPy}, OpenCV \cite{OpenCV}, and skimage \cite{skimage}. In the following sections, we describe, at a high level, the implementation of the system.
 \subsubsection{Video}
 \label{sec:Video}
 A \textit{video} is implemented as a \texttt{Video} object. Each video object has certain properties (like the name of the source video file if it was created from a file stored on disk, the total number of frames, etc) and certain methods. 
