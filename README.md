@@ -1,3 +1,5 @@
 # Computer-Vision-Final-Project
 
-Hello, world.
+./loop_detect.py 
+
+Run with no parameters to see the usage. Have fun!
