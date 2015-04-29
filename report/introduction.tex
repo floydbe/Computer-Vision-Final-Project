@@ -1,0 +1,13 @@
+\section{Introduction}
+\label{sec:Introduction}
+After the invention of the GIF file format in 1987 and their popularization in social media, the task of selecting interesting segments from videos has become important. Similarly, tools that assist users in accomplishing this task have become highly valued. While there are many conceptions of what makes an \textit{interesting} video segment, we focus on a definition that is particularly relevant to the GIF format: because GIFs loop back from their last frame to their first frame in an endless cycle, detecting perfect loops in videos creates a GIF depicting a scene that goes on forever without showing the \textit{seam} -- the transition from the last frame back to the first frame. This type of GIF has become incredibly popular, gaining its own subreddit (www.reddit.com/r/perfectloops/) as well as many other mediums. There exist several tools to help users create GIFs from videos, but the task of finding the perfect start and end frame to create a seamless loop must be done by hand. While this approach allows creativity, it is difficult and offers no guarantees that the best frames will be selected. Driven by this need for a better method of selecting proper frame pairs for perfectly looping GIF, we have created a tool that automatically extracts GIFs from an input video. It makes a selection of start and end frames by comparing how similar they are in a mathematical way. 
+
+Another technique that is being applied to GIF creation is the alteration of the original images of a video. This could include color segmentation, adding text, and many other effects. In addition to automatic loop detection, our work makes use of a masking technique - highlighting the interesting parts of each frame - to apply one such effect. 
+
+In this paper, our contributions and key implementation ideas are as follows:
+\begin{itemize}
+  \item A distance metric between frames of a video
+  \item A method for extracting perfect loops from a video based on that metric
+  \item A method of creating and applying a mask to frames of a video for interesting effect generation
+  \item Methods for optimizing this process for time
+\end{itemize}
